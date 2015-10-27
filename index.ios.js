@@ -1,5 +1,5 @@
 /**
- * Sample React Native App
+ MindBenders Reactt Native App
  * https://github.com/facebook/react-native
  */
 
