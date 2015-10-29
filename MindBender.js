@@ -1,6 +1,7 @@
 var React = require('react-native');
 var {
   AppRegistry,
+  AlertIOS,
   AsyncStorage,
   StyleSheet,
   Image,
@@ -94,31 +95,33 @@ var ButtonRow = React.createClass({
 
 
 /* Function definition for chunking and random array population BEGIN */
-function populateArray () {
+// populateArray( 2, 7, 3 )
+function populateArray(  numBack, nRandImages,  probRepeat ) {
+var idx = 0;
 
      console.log("_____brain_buster.dbg_____" );
      var matchCount=0;
      while (matchCount<20) {
 
 
-         if( i > 0 )
+         if( idx > 0 )
          {
-             var Chunk = Math.floor(Math.round((3) * Math.random())) ; // %50 chance num 0 or 1
+             var Chunk = Math.floor(Math.round((probRepeat) * Math.random())) ; // %50 chance num 0 or 1
 
              if( Chunk  <= 1  )
              {
-             gameRound[i] = gameRound[i-1];
+             gameRound[idx] = gameRound[idx-1];
                  // console.log( "{",Chunk,"}," , gameRound[i] );
              }
          else
-         gameRound[i] = Math.floor(Math.round((3) * Math.random()));
+         gameRound[idx] = Math.floor(Math.round((nRandImages) * Math.random()));
          } else
-         gameRound[i] = Math.floor(Math.round((3) * Math.random()));
+         gameRound[idx] = Math.floor(Math.round((nRandImages) * Math.random()));
 
-         dbgString = "Round["  + i + "] " + gameRound[i];
+         dbgString = "Round["  + idx + "] " + gameRound[idx];
 
 
-         if (gameRound[i]==gameRound[i-2])
+         if (gameRound[idx]==gameRound[idx-2])
            {
             // console.log ("So far you have " +matchCount + "matches");
             // console.log ("You have a match for the value " + gameRound[i] +'at' +i );
@@ -130,7 +133,7 @@ function populateArray () {
 
      // console.log ("\n");
 
-     i++;
+     idx++;
   }
      gameLength=gameRound.length;
      console.log("_____brain_buster.dbg_____" );
@@ -215,7 +218,7 @@ render: function () {
    getInitialState() {
     console.log('in the game nbackamount is' +nBackAmount);
 
-    populateArray();
+    populateArray( 2, 7, 3 );
     return {
       arrayIndex: 0
      }
@@ -226,13 +229,23 @@ render: function () {
      this._loadInitialState().done();
 
      this.setInterval(() => {
-       arrayIndex = arrayIndex + 1;
+       //arrayIndex = arrayIndex + 1;
       // var nativeProps = precomputeStyle({transform: [{rotate: rotation.toString() + "deg"}]});
     //	this.refs[BOX_REF].setNativeProps(nativeProps);
+    /*
     if (arrayIndex===14) {
       arrayIndex=0;
     }
+    */
+
     this.setState({arrayIndex: this.state.arrayIndex + 1});
+
+    if (arrayIndex===gameRound.length) {
+
+
+      arrayIndex=0;
+    }
+
 
   },500);
 },
@@ -255,6 +268,12 @@ render: function () {
    }
  },
 
+ componentWillUnmount () {
+
+  gameLength = 0;
+console.log ("in component will unmount and gameLength is " + gameLength);
+ },
+
   audioMatchPress: function() {
     console.log ('Audio Match Button Pressed');
   },
@@ -267,7 +286,6 @@ render: function () {
    render: function() {
 
 
-//    var movie = imageArray[arrayIndex];
     displayBlankImage ^=true;
     //var {nBackAmount, ...other}= this.props;
 
@@ -276,18 +294,19 @@ render: function () {
       var movieColor = '#D8DDE4';
     }
     else  {
+
     var imageIndex = gameRound[arrayIndex];
     var movie = imageArray[imageIndex][0];
     var movieColor = imageArray[imageIndex][1];
-
-    console.log(imageArray);
-    console.log(arrayIndex);
+    ++arrayIndex;
+  //  console.log(imageArray);
+  //  console.log(arrayIndex);
   }
      return (
        <View style={styles.box} >
       <View>
 
-      <Text style={{alignSelf: 'center'}}> {'\n'+ nBackAmount + ' back' + '- On Turn ' + 'of ' + gameLength + '\n'} </Text>
+      <Text style={{alignSelf: 'center'}}> {'\n'+ nBackAmount + ' back' + '- On Turn ' + arrayIndex + ' of ' + gameLength + '\n'} </Text>
 
 
 
