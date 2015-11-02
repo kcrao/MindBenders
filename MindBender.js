@@ -146,17 +146,7 @@ var idx = 0;
 
 
 /* Load Images from files */
-/*
-var imageArray =[
- require('image!spades'),
- require('image!dice'),
- require('image!home'),
- require('image!newspaper'),
- require('image!home2'),
- require('image!office'),
- require('image!pencil'),
-];
-*/
+
 
 var imageArray = [
   ['car', '#4F8EF7'],
@@ -213,10 +203,16 @@ render: function () {
 
 
  var MindBender = React.createClass({
+
+
    mixins: [TimerMixin],
 
    getInitialState() {
+     console.log ("in get initial state");
     console.log('in the game nbackamount is' +nBackAmount);
+    arrayIndex=0;
+    gameLength=0;
+    gameRound=[];
 
     populateArray( 2, 7, 3 );
     return {
@@ -228,7 +224,7 @@ render: function () {
    componentDidMount() {
      this._loadInitialState().done();
 
-     this.setInterval(() => {
+     this.imageTimer= setInterval(() => {
        //arrayIndex = arrayIndex + 1;
       // var nativeProps = precomputeStyle({transform: [{rotate: rotation.toString() + "deg"}]});
     //	this.refs[BOX_REF].setNativeProps(nativeProps);
@@ -270,8 +266,14 @@ render: function () {
 
  componentWillUnmount () {
 
+
+
+   
   gameLength = 0;
-console.log ("in component will unmount and gameLength is " + gameLength);
+
+   clearInterval(this.imageTimer);
+   console.log ("in component will unmount and gameLength is " + gameLength);
+   MindBender=null;
  },
 
   audioMatchPress: function() {
@@ -302,6 +304,20 @@ console.log ("in component will unmount and gameLength is " + gameLength);
   //  console.log(imageArray);
   //  console.log(arrayIndex);
   }
+  
+  /* Determine when last position in array reacth and prompt user to play again */
+    if (arrayIndex==gameLength) {
+      clearInterval(this.imageTimer);
+     AlertIOS.alert(
+       'Game Over - Play Again?',
+       '',
+       [
+          {text: 'Play Again', onPress: () => console.log('Foo Pressed!')},
+          {text: 'Quit', onPress: () => console.log('Bar Pressed!')},
+       ]
+     );
+
+    }
      return (
        <View style={styles.box} >
       <View>
@@ -409,8 +425,9 @@ console.log ("in component will unmount and gameLength is " + gameLength);
      flexDirection: 'row',
      flexWrap: 'nowrap',
      borderRadius: 4,
-     alignSelf: 'center',
-     alignItems: 'center',
+     justifyContent: 'space-around',
+     alignSelf: 'stretch',
+     alignItems: 'stretch',
      //paddingBottom: 2,
      //backgroundColor: 'white',
 

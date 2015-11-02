@@ -5,6 +5,8 @@
 
 'use strict';
 var nBackAmount =0;
+var audioSwitch = false;
+var imageSwitch = false;
  var React = require('react-native');
  var {
    AppRegistry,
@@ -38,6 +40,8 @@ var nBackAmount =0;
  /* Async Storage */
 
  var STORAGE_KEY = '@AsyncStorageMindBenders:key';
+ var AUDIO_KEY = '@AsyncStorageMindBendersAudio:key';
+ var IMAGE_KEY = '@AsyncStorageMindBendersImage:key';
 
 
 /* Chunking randomizer variable setup BEGIN */
@@ -84,6 +88,35 @@ var MindBender = require ('./MindBender');
 
 /* END Pull in MindBender nBACK IMAGE COMPONENT */
 
+
+var SliderNumbers = React.createClass({
+
+   render() {
+
+
+       return (
+
+         <View style={ {flex: 1}, {flexDirection: 'row'}, {paddingTop: 10},  {alignSelf: 'center'}, {alignItems: 'stretch'}, {justifyContent: 'space-around'}}>
+           <Text>
+             <Text style={{color: 'blue'}}>1 </Text>
+             <Text style={{color: 'blue'}}>2  </Text>
+             <Text style={{color: 'blue'}}>3  </Text>
+             <Text style={{color: 'blue'}}>4  </Text>
+             <Text style={{color: 'blue'}}>5  </Text>
+             <Text style={{color: 'blue'}}>6  </Text>
+             <Text style={{color: 'blue'}}>7  </Text>
+             <Text style={{color: 'blue'}}>8  </Text>
+             <Text style={{color: 'blue'}}>9  </Text>
+             <Text style={{color: 'blue'}}>10  </Text>
+
+            </Text>
+          </View>
+        );
+
+   }
+
+
+});
 
  var Slider = React.createClass({
 
@@ -143,7 +176,7 @@ var MindBender = require ('./MindBender');
        <View style = {styles.sliderContainer}>
 
          <Text>
-           {' Choose how many values to go back: '}
+           {' Choose how many values to go back (1-10): '}
         </Text>
          <Text style={{textAlign: 'center'}}>
            {'\n Match back: '}
@@ -152,13 +185,12 @@ var MindBender = require ('./MindBender');
          </Text>
          <SliderIOS
            style={styles.slider}
+          step ={2}
           minimumValue={1}
           maximumValue={10}
           value = {Number(nBackAmount)}
            onValueChange={this._handleValueChanged} />
-
        </View>
-
      );
    }
  });
@@ -166,11 +198,75 @@ var MindBender = require ('./MindBender');
  var GameButtonAudio = React.createClass({
 
    getInitialState: function() {
+    this._loadInitialState().done();
+
+
      return {
      trueSwitchIsOn: true,
      falseSwitchIsOn: false,
        };
    },
+
+   async _loadInitialState() {
+    try {
+      audioSwitch = await AsyncStorage.getItem(AUDIO_KEY);
+      imageSwitch = await AsyncStorage.getItem(IMAGE_KEY);
+      if (audioSwitch !== null){
+        this.setState({selectedValue: audioSwitch});
+        console.log('Recovered audio selection from disk: ' + audioSwitch);
+        //nBackAmount = Number(nBackAmount);
+      } else {
+        console.log('Initialized with audio  game type selection on disk.');
+        audioSwitch = false;
+      }
+      if (imageSwitch !== null){
+        this.setState({selectedValue: imageSwitch});
+        console.log('Recovered image selection from disk: ' + imageSwitch);
+        //nBackAmount = Number(nBackAmount);
+      } else {
+        console.log('Initialized with image game type selection on disk.');
+        imageSwitch = true;
+      }
+
+    } catch (error) {
+      console.log('AsyncStorage error: ' + error.message);
+    }
+  },
+
+  async _handleAudioChanged(value) {
+     audioSwitch = value;
+
+
+     this.setState({audio: audioSwitch});
+
+     // save changed value in persistent storage
+
+     try {
+       await AsyncStorage.setItem(AUDIO_KEY, audioSwitch.toString());
+      console.log('Saved selection to disk: ' + audioSwitch.toString());
+         } catch (error) {
+           this._appendMessage('AsyncStorage error: ' + error.message);
+         }
+    // end save changed value in persistent storage
+     },
+
+     async _handleImageChanged(value) {
+        imageSwitch = value;
+
+
+        this.setState({image: imageSwitch});
+
+        // save changed value in persistent storage
+
+        try {
+          await AsyncStorage.setItem(IMAGE_KEY, imageSwitch.toString());
+         console.log('Saved selection to disk: ' + imageSwitch.toString());
+            } catch (error) {
+              this._appendMessage('AsyncStorage error: ' + error.message);
+            }
+       // end save changed value in persistent storage
+        },
+
    render: function() {
      return (
       <View style = {styles.textContainer}>
@@ -184,16 +280,16 @@ var MindBender = require ('./MindBender');
 
        <Text> {'Audio: '} </Text>
        <SwitchIOS
-         onValueChange={(value) => this.setState({falseSwitchIsOn: value})}
+         onValueChange={this._handleAudioChanged}
          onTintColor= 'blue'
          thumbTintColor = '#c2c2d6'
-         value={this.state.falseSwitchIsOn} />
+         value={audioSwitch}/>
         <Text> {'Video: '} </Text>
        <SwitchIOS
-         onValueChange={(value) => this.setState({trueSwitchIsOn: value})}
+         onValueChange={this._handleImageChanged}
          onTintColor='blue'
          thumbTintColor = '#c2c2d6'
-         value={this.state.trueSwitchIsOn} />
+         value={imageSwitch} />
 
        </View>
        </View>
@@ -210,7 +306,7 @@ var MindBender = require ('./MindBender');
 
  async _loadInitialState() {
   try {
-    var nBackAmount = await AsyncStorage.getItem(STORAGE_KEY);
+    nBackAmount = await AsyncStorage.getItem(STORAGE_KEY);
     if (nBackAmount !== null){
       this.setState({selectedValue: nBackAmount});
       console.log('Recovered selection from disk: ' + nBackAmount);
@@ -225,6 +321,7 @@ var MindBender = require ('./MindBender');
 
 
    onNBackPress: function () {
+
       this.props.navigator.push ({
         title: 'nBack',
         component: MindBender,
@@ -279,6 +376,8 @@ var MindBender = require ('./MindBender');
 
  var Welcome = React.createClass({
    onPress: function () {
+
+
       this.props.navigator.push ({
         title: 'nBack',
         component: MindBender,
@@ -321,7 +420,6 @@ var MindBenderNav = React.createClass({
             title: 'Welcome',
             rightButtonTitle: 'Settings',
             onRightButtonPress: this.onRightButtonPress,
-            translucent: true,
           }}
          titleStyle= {styles.navTitle}
           />
@@ -333,17 +431,12 @@ var MindBenderNav = React.createClass({
  var styles = StyleSheet.create({
 
   slider: {
-  //paddingTop: 20,
-  //paddingBottom: 10,
-  //backgroundColor: '#D8DDE4',
-  //height: 10,
-  //margin: 10,
-  //flex: .5,
+  //step: 1,
  },
 
  sliderContainer: {
   flex: .2,
-  flexDirection: 'column',
+  //flexDirection: 'column',
   borderRadius: 4,
   borderWidth: 1,
 
