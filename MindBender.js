@@ -32,6 +32,7 @@ var idxRandomImage = Math.floor(Math.round((imageMax) * Math.random()));
 var currenImageId = "";
 var totalIntervals=0;
 var gameRound= new Array();
+var matchArray = [];
 var i=0;
 var matchCounter=0;
 var dbgString = "";
@@ -121,11 +122,12 @@ var idx = 0;
          dbgString = "Round["  + idx + "] " + gameRound[idx];
 
 
-         if (gameRound[idx]==gameRound[idx-2])
+         if (gameRound[idx]==gameRound[idx-numBack])
            {
             // console.log ("So far you have " +matchCount + "matches");
             // console.log ("You have a match for the value " + gameRound[i] +'at' +i );
             dbgString = dbgString + ", M{" +   matchCount + "}";
+            matchArray[matchCount]="Y";
             matchCount++;
            }
 
@@ -140,9 +142,6 @@ var idx = 0;
      console.log ("You needed an array sized at " + gameLength);
 }
 /* Function definition for chunking and random array END */
-
-
-
 
 
 /* Load Images from files */
@@ -214,7 +213,7 @@ render: function () {
     gameLength=0;
     gameRound=[];
 
-    populateArray( 2, 7, 3 );
+    populateArray( nBackAmount, 7, 3 );
     return {
       arrayIndex: 0
      }
