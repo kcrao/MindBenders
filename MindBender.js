@@ -100,7 +100,13 @@ var ButtonRow = React.createClass({
 function populateArray(  numBack, nRandImages,  probRepeat ) {
 var idx = 0;
 
-     console.log("_____brain_buster.dbg_____" );
+     if (numBack==0) {
+
+      numBack= 2;
+      console.log ('reset numback to 2');
+
+     }
+     console.log("_____brain_buster.dbg_____" +numBack);
      var matchCount=0;
      while (matchCount<20) {
 
@@ -212,6 +218,7 @@ render: function () {
     arrayIndex=0;
     gameLength=0;
     gameRound=[];
+     this._loadInitialState().done();
 
     populateArray( nBackAmount, 7, 3 );
     return {
@@ -221,7 +228,6 @@ render: function () {
 
 
    componentDidMount() {
-     this._loadInitialState().done();
 
      this.imageTimer= setInterval(() => {
        //arrayIndex = arrayIndex + 1;
